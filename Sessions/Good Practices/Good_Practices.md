@@ -2,20 +2,70 @@
 title: "Best Practices with R"
 author: "Juliano Palacios Abrantes"
 date: '2019-10-16'
-output: 
-  html_document: 
+output:
+  html_document:
     keep_md: yes
+    toc: yes
+    toc_depth: 1
+  pdf_document:
+    toc: yes
+    toc_depth: 1
 ---
 
-# Some **general** points
+# The main points from [Wilson *et al* 2017](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510)
+
+## Data management
+- Save the raw data and backed up in more than one location.
+- Create the data you wish to see in the world and analysis-friendly data.
+- Record all the steps used to process data.
+- Anticipate the need to use multiple tables, and use a unique identifier for every record.
+- Submit (*finalized*) data to a reputable DOI-issuing repository so that others can access and cite it.
+
+## Software
+- Decompose programs into functions.
+- Be ruthless about eliminating duplication.
+- Always search for well-maintained software libraries that do what you need.
+- Test libraries before relying on them.
+- Provide a simple example or test data set.
+- Submit code to a reputable DOI-issuing repository.
+
+## Collaboration
+- *Use version control*
+- Create an overview of your project.
+- Create a shared "to-do" list for the project.
+- Decide on communication strategies (*e.g SLACK, Github, etc.*)
+- Make the license explicit.
+- Make the project citable.
+
+## Project organization
+- Put each project in its own directory, which is named after the project. (*R projects!*)
+- Put text documents associated with the project in the *doc* directory.
+- Put raw data and metadata in a data directory and files generated during cleanup and analysis in a *results* directory.
+- Put project source code in the *src* directory.
+- Put external scripts or compiled programs in the *bin* directory.
+- Name all files to reflect their content or function.
+
+## Keeping track of changes
+- Back up (almost) everything created by a human being as soon as it is created.
+- Keep changes small.
+- Share changes frequently.
+- Create, maintain, and use a checklist for saving and sharing changes to the project.
+- Use a version control system (*Github*).
+
+## Manuscripts
+- Write manuscripts using online tools with rich formatting, change tracking, and reference management.
+- Write the manuscript in a plain text format that permits version control.
+
+# Main points from me
+
+## Some **general** points
 
 - Always start with a clean environment instead of saving the workspace
 - Use Rmarkdown instead of normal script
 - Use version control even if its only you
 - Comment smart! (*ProTip: shortcut for "#" **cmd + shift + c***)
 
-
-# Keep a good and consistent **notation**
+## Keep a good and consistent **notation**
 
 As you know there are many ways you can write in R, but there are good, bad, and ugly ways! 
 
@@ -23,7 +73,7 @@ As you know there are many ways you can write in R, but there are good, bad, and
 - Forget the `setwd()`
   - Use projects 
   - And the `here` package when collaborating
-- Be clear and keep a consistancy in your varibale nameing
+- Be clear and keep a consistency in your variable naming
   - No spaces!
   - Caps?
   - Short and to the point
@@ -38,15 +88,16 @@ As you know there are many ways you can write in R, but there are good, bad, and
 ######-----------------------------------------------------------------#####
 
 
-# NEVER use "=" for setting a variable, instead ise "<-"
+# NEVER use "=" for setting a variable, instead use "<-"
 Pi_Value <- pi
 
 # Forget the `setwd()` ####
 
-# Get used to projects and folders, keep everything consistant and you'll have an easier coding life
+# Get used to projects and folders, keep everything consistent and you'll have an easier coding life
 # If collaborating use the "here" package
 
-# Keep a consistancy in your varibale naiming
+# Keep a consistency in your variable naming
+
 
 Pi_Sqr <- pi^2
 Cars_Data <- cars
@@ -62,7 +113,7 @@ cars_over_pi <- subset(cars_data, cars_data$speed > cars_data)
 ## The Bad
 
 ```r
-# Using "=" will lead to problems in adanced R skills (e.g. functions)
+# Using "=" will lead to problems in advanced R skills (e.g. functions)
 Pi_Value = pi
 
 # Forget the `setwd()` ####
@@ -92,7 +143,7 @@ setwd("~/Users/juliano/Documents/path/that/only/I/have/Save/Figures")
 setwd("~/Users/juliano/Documents/path/that/only/I/have/Code")
 
 
-# Keep a consistancy in your varibale naiming
+# Keep a consistency in your variable naming
 Cars_data <- cars
 subsetcars_one <- subset(cars_data, cars_data$speed > cars_data)
 subsetcars_two <- subset(cars_data, cars_data$speed < cars_data)
@@ -107,7 +158,7 @@ subsetcars <- subset(cars_data, cars_data$speed > cars_data)
 thisisaverylongvariablenameforsomethingsoshort <- pi
 ```
 
-# Keep **track** of who wrote your code and its intended purpose
+## Keep **track** of who wrote the code and its intended purpose
 
 Commenting is very important and it can be the difference between spending hours trying to understand what you did versus just re-take wherever you left. 
 
@@ -265,9 +316,9 @@ Mclapply_Hack <- function(...){
 #### ------------------------------- #### ------------------------------- ####
 ```
 
-# *Libraries* can get messy quite quickly 
+## *Libraries* can get messy quite quickly 
 
-I like to have all of them at the begining and load them as a first step in my code. However, I do know some people that prefere to load them as they go. I think this is up to you.
+I like to have all of them at the beginning and load them as a first step in my code. However, I do know some people that prefer to load them as they go. I think this is up to you.
 
 ## The Good
 
@@ -301,7 +352,6 @@ ipak(packages)
 
 
 ```r
-# Bad libraries 
 # Avoid loading them in the console or in the right menu --------------------------------------->
 # This will require you to manually load them every time you open the script
 # Also, not having explanation for new libraries could be a problem...
@@ -314,7 +364,7 @@ library(vegan) # ????
 
 ```r
 # The ugly
-# For me, not having all the things in one sucks...
+# For me, not having all the things in one first chunk or part of the code sucks...
 Cars_Data <- cars
 library(ggplot2)
 ggplot(Cars_Data) +
@@ -330,9 +380,9 @@ input_file <- "data/data.csv"
 output_file <- "data/results.csv"
 
 
-# Convert **paths** into variables
+## Convert **paths** into variables
 
-Not only paths but numbers or other variables that you will use a lot, its better to convert them into variables, that way you will reduce chances of carring a mistake into the analysis
+Not only paths but numbers or other variables that you will use a lot, its better to convert them into variables, that way you will reduce chances of carrying a mistake into the analysis
 
 
 ```r
@@ -356,7 +406,7 @@ write.table(results,
 
 # The same applies for regular numbers
 
-# Lets say we want to know how many records we have of each species in the iris dataset that have a sepal width larger than 3
+# Let's say we want to know how many records we have of each species in the iris dataset that have a sepal width larger than 3
 
 # Global variables
 Spp <- unique(iris$Species)
@@ -424,4 +474,4 @@ Virginica <- subset(iris, iris$Species == unique(iris$Species)[3])
 Virginica_Subset <- subset(Virginica, Virginica$Sepal.Width >= 3)
 Virginica_Subset <- nrow(Virginica_Subset)
 ```
- 
+
