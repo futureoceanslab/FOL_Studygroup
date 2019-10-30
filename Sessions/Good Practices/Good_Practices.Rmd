@@ -35,7 +35,7 @@ output:
 - Create a shared "to-do" list for the project.
 - Decide on communication strategies (*e.g SLACK, Github, etc.*)
 - Make the license explicit.
-- Make the project citable.
+- Make the project citable.pipipipipipipipiGGGREAT!viijjjj
 
 ## Project organization
 - Put each project in its own directory, which is named after the project. (*R projects!*)
