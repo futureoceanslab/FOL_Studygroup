@@ -2,7 +2,10 @@
 JEPA
 09/28/2017
 
-# Why use dplyr and tidyr?
+
+# Introduction to session
+
+Why use dplyr and tidyr?
 
 - Speed - dplyr and tidyr are really fast
 - Readability - the code syntax is straightforward and easy to read
@@ -15,9 +18,9 @@ The session will cover a variety of useful functions to manipulate data, mainly 
 
 # Instructions
 
-1. **Session Matterials:** Get the workshop materials: Go to the repository and click on the "fork" button to create an independent copy within your own GitHub account. Alternately, click on the "clone or download" button. 
+1. **Session Materials:** Get the workshop materials: Go to the repository and click on the "fork" button to create an independent copy within your own GitHub account. Alternately, click on the "clone or download" button.
 
-2. **csv files:** All csv files are located in the *Data* folder ( *Alaska.csv*)
+2. **Data:** Go to http://www.seaaroundus.org/data/#/fishing-entity/165?chart=catch-chart&dimension=eez&measure=tonnage&limit=10 and download the *Catches by EEZ by the fleets of Spain*. Move it to the Data folder and call it "SAU_Catch_Spain.csv"
 
 4. **Necessary Packages:**
 
