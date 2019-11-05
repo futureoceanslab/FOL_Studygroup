@@ -26,6 +26,7 @@ library(tidyverse)
 # In addition, we are going to use the following packages
 
 # Janitor
+# install.packages('janitor')
 library(janitor)
 
 # This amazing package helps keep consistancy on the colnames
@@ -53,13 +54,15 @@ listregions(region = "fao")
 
 Data <- catchdata(
   region = "fao",
-  id = 34, # I happen to know that Spain's id is this
+  id = 34, 
   measure = "tonnage",
   dimension = "country"
   ) 
 
 # Explore our df
 head(Data)
+
+# Data$`russian federation`
 
 # Using the janitor package to fix names
 Data <- clean_names(Data) # can you tell the difference?
@@ -69,9 +72,13 @@ head(Data)
 
 #### Lets also load the complete SAU Data for Spain
 
+# Classic version
 Spain <- read.csv("./Data/SAU_Catch_Spain.csv")
 
+# Tidiverse
+Spain <- read_csv("./Data/SAU_Catch_Spain.csv")
 head(Spain)
+
 ```
 
 
@@ -110,7 +117,7 @@ unique(Tidy_Spain$year)
 
 #OR with column names (Better!):
 Tidy_Spain <- gather(Data, 
-                    key='nation',
+                    key='Nntion',
                     value='catch',
                     spain:others) 
 
@@ -120,6 +127,8 @@ Tidy_Spain_B <- gather(Data,
                     key='nation',
                     value='catch',
                     spain:latvia) 
+
+head(Tidy_Spain_B)
 ```
 
 
@@ -127,7 +136,7 @@ Tidy_Spain_B <- gather(Data,
 
 # We can do it by number of columns
 Spread_Tidy_Spain <- spread(Tidy_Spain, 
-                    key='nation',
+                    key='nation', #my column names
                     value='catch'
                     ) # I want you to convert from column 2 to 12
 
@@ -148,7 +157,7 @@ Note: The date structure will depend on your Data, as well as the `sep =`
 ```{r unite, echo=t, eval=F, warning=F}
 
 #Assuming that our Data set had a dat volumn with year/month/day this is how we would do it...
-Separate_Example <- separate(Tidy_Spain,year,c("year", "month", "day"), sep = "-")
+Separate_Example <- separate(Tidy_Spain,years,c("year", "month", "day"), sep = "-")
 
 #Note: ignore the warning message, is because we don't have a month/day format
 
@@ -217,9 +226,19 @@ arrange(Spain,
         year,
         desc(area_name), 
         )
+
+# Diegos example
+
+arrange(Spain, 
+        year,
+        desc(area_name), 
+        scientific_name,
+        tonnes
+        )
 ```
 
 ### Filter
+
 The `filter` function allows you to, literally, filter your Data by any category or number.
 
 #### Basic structure:
@@ -267,6 +286,13 @@ Filter_Example <- filter(Spain,
 
 unique(Filter_Example$year)
 
+## Example with species
+
+Selected_Species <- c("Mustelus asterias","Ophidiidae")
+
+Filter_Example <- filter(Spain,
+                         scientific_name %in% Selected_Species)
+
 # NOTE: remember that in R there are multiple ways to get to the same result! 
 
 #Wait! What if I want to filter by multiple columns!? 
@@ -289,10 +315,16 @@ min(Filter_Example$tonnes)
 
 #You can also combine the filter with other tidyverse commands like str_detect (Covered later in this lesson)
 #For example, return all that have a capital 'C' (note: str_detect is case sensitive)
-filter_starts_with_c <- filter(Spain, str_detect(common_name, pattern="lobster"))
-#OR return all results where the common name includes the string 'salmon' OR 'crab'.
+filter_starts_with_c <- filter(Spain, 
+                               str_detect(common_name, 
+                                          pattern="Lobster")
+                               )
+#OR return all results where the common name includes the string 'cod' OR 'crab'.
 #We didn't include any spaces in this pattern search because str_detect would 'think' that was part of what we were searching for.
-filter_salmon <- filter(Spain, str_detect(common_name, pattern="cod|crab"))
+filter_multiple <- filter(Spain,
+                        str_detect(common_name, 
+                                   pattern="cod|crab")
+                        ) 
 
 ```
 
@@ -371,18 +403,17 @@ New_Table <- mutate(Data, Name_New_Column = action)
 
 #Functions
 #Create a new variable in the Dataframe with mutate:
+
 Mutate_Example1 <- mutate(Spain, Log = log(tonnes))
 #Mutated variables can be used instantly as in this example.
 #We create the variable 'Log' and then call it in the next line.
 #Multiple mutate commands can be called one after the other by separating each with a comma.
+
 Mutate_Example1 <- Spain %>% 
   filter(year>1990) %>% 
   mutate(Log = log(tonnes),
   Log_times_value = Log*landed_value)
   
-
-
-
 head(Mutate_Example1[13:16], 3)
 
 #In Spain calculations (per row)
@@ -393,6 +424,27 @@ head(Mutate_Example2[13:15], 3)
 #Or characters...
 Mutate_Example3 <- mutate(Spain, Pais = "Espana")
 head(Mutate_Example3[13:15], 3)
+
+# Advanced example with ifelse
+
+Example_ifelse <- Spain %>% 
+  mutate(Is_it_Food = ifelse(end_use_type == "Direct human consumption","Yes","No!")) %>% 
+  filter(Is_it_Food == "Yes")
+
+
+Example_ifelse <- Spain %>% 
+  mutate(Is_it_Food = ifelse(end_use_type == "Direct human consumption","Yes",
+                             ifelse(end_use_type == "Other", "Maybe!",
+                                    NA))) %>% 
+  filter(!is.na(Is_it_Food))
+
+### Multiple columns at a time
+
+Example_Multiple <- Spain %>% 
+  mutate_if(is.numeric,log) # mutate all of the columns with a rule
+
+Example_Multiple <- Spain %>% 
+  mutate_at(vars(tonnes:landed_value),mean)
 
 
 ```
@@ -437,7 +489,7 @@ The `select`function is one of those "of-course it does that" function because i
 
 #### Basic structure:
 
-New_Table <- select(Data,number or name of column)
+New_Table <- select(Data, number or name of column)
 
 **Note:** Re-ordering of values happens here!
 
@@ -452,7 +504,13 @@ head(Select_Example1,3)
 #Select by multiple column numbers
 Select_Example2 <- select(Spain, 4,5,6,7)
 
+Select_Example2 <- select(Spain, 4:7)
+
 head(Select_Example2, 3)
+
+# Drop column number 2 (area_type)
+Select_Example2 <- select(Spain, -2)
+
 
 # You can also do (4:7) and even (4:6,15)
 
@@ -487,9 +545,17 @@ Select_Example7 <- select(Select_Example5, scientific_name,
 
 head(Select_Example7, 3)
 
+Select_Example8 <- select(Spain, 
+                          scientific_name,
+                          year,
+                          tonnes,
+                          gear_type,
+                          everything()
+                          )
+
 ```
 
-###slice
+### slice
 The `slice`function works like the `select`function but for rows. So, if you want to extract an specific row, a set of rows, or a range between values, use slice!
 This works similar to filter in that it keeps all columns of the Dataframe, but only certain rows. You can choose to use this or filter depending on if you know the row numbers, or if you know the values within the rows you want. 
 
@@ -511,7 +577,7 @@ head(Slice_Example2, 3)
 
 ```
 
-###pull 
+### pull 
 
 If you want to get all the values from a column you can pull those values to a new variable. Often helpful at the end of a pipe operator. 
 You can continue to work with these values (in the pipe, or otherwise) after you have used the pull function
@@ -541,6 +607,7 @@ Often, when you get Data (or have finished entering it yourself), you need to ch
 
 ```{r stringr, echo=T, eval=F}
 
+
 str_example <- c("shark", "Ray", "fish", "Whale", "FISH", "fish")
 
 #Can use to modify strings:
@@ -552,7 +619,6 @@ str_to_title(str_example) #If you feel your text is important
 sharks <- str_detect(str_example, pattern="shark")
 #Detect returns a list of TRUE or FALSE values where it find the value of interest
 
-
 #How many sharks are there? str_count
 str_count(str_example, pattern="shark")
 
@@ -561,6 +627,7 @@ str_replace(str_example, pattern="Whale", "non-fish")
 
 str_split(str_example, pattern="i")
 
+# Example wioth numbers are characterss
 num_str_example <- c("1,000", "937.1", "1,000,000")
 str_replace(num_str_example, pattern=",", replacement="") # replaces only first encounter 
 num_str_example <- str_replace(num_str_example, pattern=",", replacement="") # replaces only first encounter 
@@ -582,7 +649,6 @@ df
 ```
 
 ## Joining Data with dplyr
-
 
 ### The "bind" family
 These functions will help us bind two or more Data-sets in one depending on different variables.
@@ -623,7 +689,7 @@ Spain1 <- slice(Spain, 1:3)
 Spain2 <- slice(Spain, 10800:10802)
 
 #Now we bind the columns together
-Bind_Row_1 <- bind_cols(Spain1,Spain2)
+Bind_Row_1 <- bind_rows(Spain1,Spain2)
 
 head(Bind_Row_1, 6)
 ```
@@ -636,6 +702,7 @@ knitr::include_graphics('https://www.codeproject.com/KB/Database/Visual_SQL_Join
 ```
 
 #### anti_join
+
 This function will allow you to select all variables that are **not** the same within two Data-sets. Note, both Data-sets must have at least one similar category/column. This can be helpful to find values that aren't matching between your Datasets (i.e., for testing). 
 
 ##### Basic Structure 
@@ -660,7 +727,9 @@ Diff_Species <- anti_join(Ireland, Senegal,
   unique()
 
 #You can also do it by more than one variable
-Diff_Species2 <- anti_join(Ireland, Senegal, by=c("scientific_name","reporting_status"))
+Diff_Species2 <- anti_join(Ireland, Senegal,
+                           by=c("scientific_name","year")
+                           )
 
 
 
@@ -675,7 +744,8 @@ Data_Name <- semi_join(Dataset1, Dataset2, by="similar category")
 
 ```{r semi_join, echo =T, eval=F}
 #Lets now asume we want to know the species are fished in Ireland and in Senegal 
-Similar_Species <- semi_join(Ireland, Senegal, by="scientific_name") %>% 
+Similar_Species <- semi_join(Ireland, Senegal,
+                             by="scientific_name") %>% 
   pull(scientific_name) %>% 
   unique()
 
