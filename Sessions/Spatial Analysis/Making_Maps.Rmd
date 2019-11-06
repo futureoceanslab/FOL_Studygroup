@@ -25,6 +25,9 @@ packages <- c("tidyverse",
 
 ipak(packages)
 
+devtools::install_github("raquamaps/aquamapsdata")
+download_db(force=TRUE)
+
 ```
 
 ## Map sources
